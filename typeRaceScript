@@ -1,0 +1,50 @@
+--[[
+    Don't change speed to below 0.04, it will ban you for having a WPM higher than ~250
+    
+    0.05 is about 190 WPM
+    0.04 is about 220 WPM
+]]
+
+local Speed = 0.01
+
+
+-- Simulates pressing a key
+local vim = game:GetService("VirtualInputManager")
+local function PressKey(name)
+    vim:SendKeyEvent(true, Enum.KeyCode[name], false, game)
+    vim:SendKeyEvent(false, Enum.KeyCode[name], false, game)
+end
+
+-- Gets keys
+local keys = workspace.Letters:GetChildren()[1]
+local start
+for i,v in pairs(keys:GetChildren()) do
+    if v:FindFirstChild("PopupTemplate") then
+        start = v
+    end
+end
+
+local dists = {}
+for i,v in pairs(keys:GetChildren()) do
+    if v:FindFirstChild("SurfaceGui") then
+        local dist = (v.Position - start.Position).Magnitude
+        table.insert(dists,{v,dist})
+    end
+end
+
+table.sort(dists,
+    function(a,b)
+    	return a[2] < b[2]
+    end
+)
+
+-- Type 'em
+for i,v in pairs(dists) do
+    local letter = string.upper(v[1].SurfaceGui.TextLabel.Text)
+    if letter == " " then
+        PressKey("Space")
+    else
+        PressKey(letter)
+    end
+    task.wait(Speed)
+end
